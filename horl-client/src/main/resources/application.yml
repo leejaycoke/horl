@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: "horl-client"
+  config:
+    import: classpath:core.yml
+  profiles:
+    group:
+      "local": "core"
+
+---
+spring.config.activate.on-profile: local

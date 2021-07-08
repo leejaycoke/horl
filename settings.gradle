@@ -1,0 +1,4 @@
+rootProject.name = 'horl'
+
+include 'horl-client'
+include 'horl-core'

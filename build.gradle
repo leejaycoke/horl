@@ -1,0 +1,82 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+    dependencies {
+        classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+//        classpath "gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:${querydslPluginVersion}"
+        classpath "io.spring.gradle:dependency-management-plugin:${springIoDependencyVersion}"
+
+    }
+}
+
+plugins {
+    id "idea"
+    id "java"
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+def springProjects = [project(":horl-core"), project(":horl-client")]
+def deployProjects = [project(":horl-client")]
+
+configure(allprojects.findAll()) {
+
+    apply plugin: "java"
+    apply plugin: "idea"
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        compileOnly "org.projectlombok:lombok:${lombokVersion}"
+        annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+        testCompileOnly("org.projectlombok:lombok:${lombokVersion}")
+        testAnnotationProcessor("org.projectlombok:lombok:${lombokVersion}")
+    }
+
+    test {
+        useJUnitPlatform()
+    }
+}
+
+configure(springProjects) {
+
+    apply plugin: "org.springframework.boot"
+    apply plugin: "io.spring.dependency-management"
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+
+    }
+
+}
+
+configure(deployProjects) {
+
+    group = "${projectGroup}"
+    version = "${projectVersion}"
+    sourceCompatibility = 11
+    targetCompatibility = 11
+
+    springBoot {
+        buildInfo {
+            properties {
+                additional = ['version': "${projectVersion}"]
+            }
+        }
+    }
+
+}
