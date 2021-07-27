@@ -21,11 +21,15 @@ public class ShortUrl extends BaseTimeEntity {
     @GeneratedValue(strategy = IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
+    private String url;
+
     @Column(nullable = false, length = 12)
     private String key;
 
     @Builder
-    public ShortUrl(String key) {
+    public ShortUrl(String url, String key) {
+        this.url = url;
         this.key = key;
     }
 }

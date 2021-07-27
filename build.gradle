@@ -7,7 +7,7 @@ buildscript {
 
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
-//        classpath "gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:${querydslPluginVersion}"
+        classpath "gradle.plugin.com.ewerk.gradle.plugins:querydsl-plugin:${querydslPluginVersion}"
         classpath "io.spring.gradle:dependency-management-plugin:${springIoDependencyVersion}"
 
     }
@@ -16,6 +16,7 @@ buildscript {
 plugins {
     id "idea"
     id "java"
+    id "java-library"
 }
 
 configurations {
@@ -26,11 +27,13 @@ configurations {
 
 def springProjects = [project(":horl-core"), project(":horl-client")]
 def deployProjects = [project(":horl-client")]
+def querydslProjects = [project(":horl-core")]
 
 configure(allprojects.findAll()) {
 
     apply plugin: "java"
     apply plugin: "idea"
+    apply plugin: "java-library"
 
     repositories {
         mavenCentral()
@@ -61,7 +64,47 @@ configure(springProjects) {
     dependencies {
 
     }
+}
 
+
+def querydslDir = "$buildDir/generated/querydsl"
+
+configure(querydslProjects) {
+
+    apply plugin: "com.ewerk.gradle.plugins.querydsl"
+
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+
+    sourceSets {
+        main {
+            java {
+                srcDirs = ['src/main/java', querydslDir]
+            }
+        }
+    }
+
+    dependencies {
+        api("com.querydsl:querydsl-jpa")
+        api("com.querydsl:querydsl-apt")
+    }
+
+    querydsl {
+        library = "com.querydsl:querydsl-apt"
+        jpa = true
+        querydslSourcesDir = querydslDir
+    }
+
+    compileQuerydsl {
+        options.annotationProcessorPath = configurations.querydsl
+    }
+
+    configurations {
+        querydsl.extendsFrom compileClasspath
+    }
 }
 
 configure(deployProjects) {
